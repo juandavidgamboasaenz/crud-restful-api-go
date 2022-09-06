@@ -41,6 +41,20 @@ func (p *Post) Validate() error {
 	return nil
 }
 
+func (p *Post) SavePost(db *gorm.DB) (*Post, error) {
+	err := db.Debug().Model(&Post{}).Create(&p).Error
+	if err != nil {
+		return &Post{}, err
+	}
+	if p.ID != 0 {
+		err = db.Debug().Model(&User{}).Where("id = ?", p.AuthorID).Take(&p.Author).Error
+		if err != nil {
+			return &Post{}, err
+		}
+	}
+	return p, nil
+}
+
 func (p *Post) FindAllPosts(db *gorm.DB) (*[]Post, error) {
 	posts := []Post{}
 	err := db.Debug().Model(&Post{}).Limit(100).Find(&posts).Error
@@ -78,11 +92,28 @@ func (p *Post) FindPostByID(db *gorm.DB, pid uint64) (*Post, error) {
 	return p, nil
 }
 
-func (p *Post) UpdatedPost(db *gorm.DB, pid uint64, uid uint32) (int64, error) {
+func (p *Post) UpdateAPost(db *gorm.DB) (*Post, error) {
+	err := db.Debug().Model(&Post{}).Where("id = ?", p.ID).Updates(Post{Tittle: p.Tittle, Content: p.Content, UpdatedAt: time.Now()}).Error
+
+	if err != nil {
+		return &Post{}, err
+	}
+
+	if p.ID != 0 {
+		err = db.Debug().Model(&User{}).Where("id = ?", p.AuthorID).Take(&p.Author).Error
+		if err != nil {
+			return &Post{}, err
+		}
+	}
+	return p, nil
+}
+
+func (p *Post) DeleteAPost(db *gorm.DB, pid uint64, uid uint32) (int64, error) {
 	db = db.Debug().Model(&Post{}).Where("id = ? and authorId = ?", pid, uid).Take(&Post{}).Delete(&Post{})
+
 	if db.Error != nil {
 		if gorm.IsRecordNotFoundError(db.Error) {
-			return 0, errors.New("Post not found")
+			return 0, errors.New("post not found")
 		}
 		return 0, db.Error
 	}
