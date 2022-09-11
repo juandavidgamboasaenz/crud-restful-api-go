@@ -4,7 +4,7 @@ import "github.com/LordCeilan/crud-restful-api-go/api/middlewares"
 
 func (s *Server) initializeRoutes() {
 
-	s.Router.HandleFunc("/", middlewares.SetMiddlewareJSON(s.Home)).Methods("GET")
+	s.Router.HandleFunc("/health", middlewares.SetMiddlewareJSON(s.Home)).Methods("GET")
 
 	s.Router.HandleFunc("/login", middlewares.SetMiddlewareJSON(s.Login)).Methods("POST")
 
