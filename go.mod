@@ -1,10 +1,10 @@
 module github.com/LordCeilan/crud-restful-api-go
 
-go 1.23.0
+go 1.25.0
 
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
-	golang.org/x/crypto v0.35.0
+	golang.org/x/crypto v0.52.0
 )
 
 require (
